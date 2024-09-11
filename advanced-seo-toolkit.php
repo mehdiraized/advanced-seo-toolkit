@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Advanced SEO Toolkit
- * Plugin URI: https://example.com/advanced-seo-toolkit
+ * Plugin URI: https://github.com/mehdiraized/advanced-seo-toolkit
  * Description: A comprehensive SEO plugin with meta tags, custom language support, schema markup, and third-party integrations.
  * Version: 1.0.0
  * Author: Mehdi Rezaei
