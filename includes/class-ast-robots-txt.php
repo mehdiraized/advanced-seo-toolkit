@@ -13,8 +13,8 @@ class AST_Robots_Txt {
 	public function add_robots_txt_menu() {
 		add_submenu_page(
 			'advanced-seo-toolkit',
-			__( 'Robots.txt Editor', 'advanced-seo-toolkit' ),
-			__( 'Robots.txt', 'advanced-seo-toolkit' ),
+			esc_html__( 'Robots.txt Editor', 'advanced-seo-toolkit' ),
+			esc_html__( 'Robots.txt', 'advanced-seo-toolkit' ),
 			'manage_options',
 			'ast-robots-txt',
 			array( $this, 'render_robots_txt_page' )
@@ -26,14 +26,14 @@ class AST_Robots_Txt {
 
 		add_settings_section(
 			'ast_robots_txt_main',
-			__( 'Robots.txt Settings', 'advanced-seo-toolkit' ),
+			esc_html__( 'Robots.txt Settings', 'advanced-seo-toolkit' ),
 			array( $this, 'robots_txt_section_callback' ),
 			'ast-robots-txt'
 		);
 
 		add_settings_field(
 			'ast_robots_txt_content',
-			__( 'Robots.txt Content', 'advanced-seo-toolkit' ),
+			esc_html__( 'Robots.txt Content', 'advanced-seo-toolkit' ),
 			array( $this, 'robots_txt_content_callback' ),
 			'ast-robots-txt',
 			'ast_robots_txt_main'
@@ -49,7 +49,7 @@ class AST_Robots_Txt {
 	}
 
 	public function robots_txt_section_callback() {
-		echo '<p>' . __( 'Customize your robots.txt file content here. Be careful as incorrect settings can affect your site\'s search engine visibility.', 'advanced-seo-toolkit' ) . '</p>';
+		echo '<p>' . esc_html__( 'Customize your robots.txt file content here. Be careful as incorrect settings can affect your site\'s search engine visibility.', 'advanced-seo-toolkit' ) . '</p>';
 	}
 
 	public function robots_txt_content_callback() {
@@ -69,7 +69,7 @@ class AST_Robots_Txt {
 				<?php
 				settings_fields( 'ast_robots_txt_options' );
 				do_settings_sections( 'ast-robots-txt' );
-				submit_button( __( 'Save Changes', 'advanced-seo-toolkit' ) );
+				submit_button( esc_html__( 'Save Changes', 'advanced-seo-toolkit' ) );
 				?>
 			</form>
 		</div>
@@ -80,7 +80,7 @@ class AST_Robots_Txt {
 		if ( $public ) {
 			$custom_content = isset( $this->options['content'] ) ? $this->options['content'] : '';
 			if ( ! empty( $custom_content ) ) {
-				return $custom_content;
+				return wp_kses_post( $custom_content );
 			}
 		}
 		return $output;
@@ -90,7 +90,7 @@ class AST_Robots_Txt {
 		$default = "User-agent: *\n";
 		$default .= "Disallow: /wp-admin/\n";
 		$default .= "Allow: /wp-admin/admin-ajax.php\n\n";
-		$default .= "Sitemap: " . home_url( '/sitemap.xml' );
+		$default .= "Sitemap: " . esc_url( home_url( '/sitemap.xml' ) );
 
 		return $default;
 	}

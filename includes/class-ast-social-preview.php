@@ -4,6 +4,7 @@ class AST_Social_Preview {
 		add_action( 'add_meta_boxes', array( $this, 'add_social_preview_meta_box' ) );
 		add_action( 'save_post', array( $this, 'save_social_preview_data' ) );
 		add_action( 'wp_head', array( $this, 'output_social_meta_tags' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	public function add_social_preview_meta_box() {
@@ -14,6 +15,21 @@ class AST_Social_Preview {
 			array( 'post', 'page' ),
 			'normal',
 			'high'
+		);
+	}
+
+	public function enqueue_admin_scripts( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ) ) ) {
+			return;
+		}
+
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'ast-social-preview',
+			plugin_dir_url( __FILE__ ) . 'src/js/social-preview.js',
+			array( 'jquery' ),
+			'1.0.0',
+			true
 		);
 	}
 
@@ -28,86 +44,57 @@ class AST_Social_Preview {
 		$twitter_image = get_post_meta( $post->ID, '_ast_twitter_image', true );
 
 		?>
-		<h3><?php _e( 'Facebook / Open Graph', 'advanced-seo-toolkit' ); ?></h3>
+		<h3><?php esc_html_e( 'Facebook / Open Graph', 'advanced-seo-toolkit' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th><label for="ast_og_title"><?php _e( 'OG Title', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label for="ast_og_title"><?php esc_html_e( 'OG Title', 'advanced-seo-toolkit' ); ?></label></th>
 				<td><input type="text" id="ast_og_title" name="ast_og_title" value="<?php echo esc_attr( $og_title ); ?>"
 						class="large-text" /></td>
 			</tr>
 			<tr>
-				<th><label for="ast_og_description"><?php _e( 'OG Description', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label for="ast_og_description"><?php esc_html_e( 'OG Description', 'advanced-seo-toolkit' ); ?></label></th>
 				<td><textarea id="ast_og_description" name="ast_og_description" rows="3"
 						class="large-text"><?php echo esc_textarea( $og_description ); ?></textarea></td>
 			</tr>
 			<tr>
-				<th><label for="ast_og_image"><?php _e( 'OG Image', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label for="ast_og_image"><?php esc_html_e( 'OG Image', 'advanced-seo-toolkit' ); ?></label></th>
 				<td>
 					<input type="text" id="ast_og_image" name="ast_og_image" value="<?php echo esc_url( $og_image ); ?>"
 						class="large-text" />
-					<input type="button" class="button button-secondary"
-						value="<?php _e( 'Upload Image', 'advanced-seo-toolkit' ); ?>" id="ast_og_image_button" />
+					<input type="button" class="button button-secondary ast-upload-image"
+						value="<?php esc_attr_e( 'Upload Image', 'advanced-seo-toolkit' ); ?>" data-target="#ast_og_image" />
 				</td>
 			</tr>
 		</table>
 
-		<h3><?php _e( 'Twitter Card', 'advanced-seo-toolkit' ); ?></h3>
+		<h3><?php esc_html_e( 'Twitter Card', 'advanced-seo-toolkit' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th><label for="ast_twitter_title"><?php _e( 'Twitter Title', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label for="ast_twitter_title"><?php esc_html_e( 'Twitter Title', 'advanced-seo-toolkit' ); ?></label></th>
 				<td><input type="text" id="ast_twitter_title" name="ast_twitter_title"
 						value="<?php echo esc_attr( $twitter_title ); ?>" class="large-text" /></td>
 			</tr>
 			<tr>
-				<th><label for="ast_twitter_description"><?php _e( 'Twitter Description', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label
+						for="ast_twitter_description"><?php esc_html_e( 'Twitter Description', 'advanced-seo-toolkit' ); ?></label></th>
 				<td><textarea id="ast_twitter_description" name="ast_twitter_description" rows="3"
 						class="large-text"><?php echo esc_textarea( $twitter_description ); ?></textarea></td>
 			</tr>
 			<tr>
-				<th><label for="ast_twitter_image"><?php _e( 'Twitter Image', 'advanced-seo-toolkit' ); ?></label></th>
+				<th><label for="ast_twitter_image"><?php esc_html_e( 'Twitter Image', 'advanced-seo-toolkit' ); ?></label></th>
 				<td>
 					<input type="text" id="ast_twitter_image" name="ast_twitter_image"
 						value="<?php echo esc_url( $twitter_image ); ?>" class="large-text" />
-					<input type="button" class="button button-secondary"
-						value="<?php _e( 'Upload Image', 'advanced-seo-toolkit' ); ?>" id="ast_twitter_image_button" />
+					<input type="button" class="button button-secondary ast-upload-image"
+						value="<?php esc_attr_e( 'Upload Image', 'advanced-seo-toolkit' ); ?>" data-target="#ast_twitter_image" />
 				</td>
 			</tr>
 		</table>
-
-		<script>
-			jQuery(document).ready(function ($) {
-				function uploadImage(button, input) {
-					var frame;
-					$(button).click(function (e) {
-						e.preventDefault();
-						if (frame) {
-							frame.open();
-							return;
-						}
-						frame = wp.media({
-							title: 'Select or Upload Image',
-							button: {
-								text: 'Use this image'
-							},
-							multiple: false
-						});
-						frame.on('select', function () {
-							var attachment = frame.state().get('selection').first().toJSON();
-							$(input).val(attachment.url);
-						});
-						frame.open();
-					});
-				}
-
-				uploadImage('#ast_og_image_button', '#ast_og_image');
-				uploadImage('#ast_twitter_image_button', '#ast_twitter_image');
-			});
-		</script>
 		<?php
 	}
 
 	public function save_social_preview_data( $post_id ) {
-		if ( ! isset( $_POST['ast_social_preview_nonce'] ) || ! wp_verify_nonce( $_POST['ast_social_preview_nonce'], 'ast_social_preview_nonce' ) ) {
+		if ( ! isset( $_POST['ast_social_preview_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_POST['ast_social_preview_nonce'] ), 'ast_social_preview_nonce' ) ) {
 			return;
 		}
 
@@ -130,7 +117,9 @@ class AST_Social_Preview {
 
 		foreach ( $fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				$value = sanitize_text_field( $_POST[ $field ] );
+				$value = $field === 'ast_og_image' || $field === 'ast_twitter_image'
+					? esc_url_raw( $_POST[ $field ] )
+					: sanitize_text_field( $_POST[ $field ] );
 				update_post_meta( $post_id, '_' . $field, $value );
 			}
 		}

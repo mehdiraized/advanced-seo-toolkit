@@ -11,13 +11,23 @@ class AST_Sitemap_Generator {
 		add_action( 'admin_init', array( $this, 'register_sitemap_settings' ) );
 		add_action( 'update_option_ast_sitemap_post_types', array( $this, 'generate_sitemap' ) );
 		add_action( 'update_option_ast_sitemap_taxonomies', array( $this, 'generate_sitemap' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	public function enqueue_admin_scripts( $hook ) {
+		if ( 'advanced-seo-toolkit_page_ast-sitemap-settings' !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_style( 'ast-sitemap-admin-style', plugin_dir_url( __FILE__ ) . 'src/css/ast-sitemap-admin.css', array(), '1.0.0' );
+		wp_enqueue_script( 'ast-sitemap-admin-script', plugin_dir_url( __FILE__ ) . 'src/js/ast-sitemap-admin.js', array( 'jquery' ), '1.0.0', true );
 	}
 
 	public function add_sitemap_menu() {
 		add_submenu_page(
 			'advanced-seo-toolkit',
-			__( 'Sitemap Settings', 'advanced-seo-toolkit' ),
-			__( 'Sitemap', 'advanced-seo-toolkit' ),
+			esc_html__( 'Sitemap Settings', 'advanced-seo-toolkit' ),
+			esc_html__( 'Sitemap', 'advanced-seo-toolkit' ),
 			'manage_options',
 			'ast-sitemap-settings',
 			array( $this, 'render_sitemap_settings_page' )
@@ -25,18 +35,30 @@ class AST_Sitemap_Generator {
 	}
 
 	public function register_sitemap_settings() {
-		register_setting( 'ast_sitemap_settings', 'ast_sitemap_post_types' );
-		register_setting( 'ast_sitemap_settings', 'ast_sitemap_taxonomies' );
+		register_setting( 'ast_sitemap_settings', 'ast_sitemap_post_types', array( $this, 'sanitize_post_types' ) );
+		register_setting( 'ast_sitemap_settings', 'ast_sitemap_taxonomies', array( $this, 'sanitize_taxonomies' ) );
+	}
+
+	public function sanitize_post_types( $input ) {
+		return is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array();
+	}
+
+	public function sanitize_taxonomies( $input ) {
+		return is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array();
 	}
 
 	public function render_sitemap_settings_page() {
-		$sitemap_url = home_url( '/' . $this->filename );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$sitemap_url = esc_url( home_url( '/' . $this->filename ) );
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-			<div class="ast-sitemap-container" style="display: flex; gap: 20px;">
-				<div class="ast-sitemap-settings" style="flex: 1;">
-					<h2><?php _e( 'Sitemap Settings', 'advanced-seo-toolkit' ); ?></h2>
+			<div class="ast-sitemap-container">
+				<div class="ast-sitemap-settings">
+					<h2><?php esc_html_e( 'Sitemap Settings', 'advanced-seo-toolkit' ); ?></h2>
 					<form action="options.php" method="post">
 						<?php
 						settings_fields( 'ast_sitemap_settings' );
@@ -44,7 +66,7 @@ class AST_Sitemap_Generator {
 						?>
 						<table class="form-table">
 							<tr valign="top">
-								<th scope="row"><?php _e( 'Include Post Types', 'advanced-seo-toolkit' ); ?></th>
+								<th scope="row"><?php esc_html_e( 'Include Post Types', 'advanced-seo-toolkit' ); ?></th>
 								<td>
 									<?php
 									$post_types = get_post_types( array( 'public' => true ), 'objects' );
@@ -61,7 +83,7 @@ class AST_Sitemap_Generator {
 								</td>
 							</tr>
 							<tr valign="top">
-								<th scope="row"><?php _e( 'Include Taxonomies', 'advanced-seo-toolkit' ); ?></th>
+								<th scope="row"><?php esc_html_e( 'Include Taxonomies', 'advanced-seo-toolkit' ); ?></th>
 								<td>
 									<?php
 									$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
@@ -78,47 +100,30 @@ class AST_Sitemap_Generator {
 								</td>
 							</tr>
 						</table>
-						<?php submit_button( __( 'Save Settings and Regenerate Sitemap', 'advanced-seo-toolkit' ) ); ?>
+						<?php submit_button( esc_html__( 'Save Settings and Regenerate Sitemap', 'advanced-seo-toolkit' ) ); ?>
 					</form>
 				</div>
 
-				<div class="ast-sitemap-preview" style="flex: 1;">
-					<h2><?php _e( 'Sitemap Preview', 'advanced-seo-toolkit' ); ?></h2>
+				<div class="ast-sitemap-preview">
+					<h2><?php esc_html_e( 'Sitemap Preview', 'advanced-seo-toolkit' ); ?></h2>
 					<p>
 						<strong>
-							<a href="<?= esc_url( $sitemap_url ); ?>"
+							<a href="<?php echo esc_url( $sitemap_url ); ?>"
 								title="<?php esc_attr_e( 'View Sitemap', 'advanced-seo-toolkit' ); ?>" target="_blank">
-								<?= esc_url( $sitemap_url ); ?>
+								<?php echo esc_url( $sitemap_url ); ?>
 							</a>
 						</strong>
 					</p>
-					<div class="sitemap-preview"
-						style="max-height: 600px; overflow: auto; background: #282c34; padding: 15px; border-radius: 5px;">
+					<div class="sitemap-preview">
 						<?php
 						$sitemap_content = $this->get_sitemap_content();
 						$sitemap_preview = $this->format_xml( $sitemap_content );
-						echo '<pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;"><code style="color: #abb2bf; font-family: monospace;">' . $sitemap_preview . '</code></pre>';
+						echo '<pre><code>' . esc_html( $sitemap_preview ) . '</code></pre>';
 						?>
 					</div>
 				</div>
 			</div>
 		</div>
-
-		<style>
-			.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar {
-				width: 12px;
-			}
-
-			.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar-track {
-				background: #373b41;
-			}
-
-			.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar-thumb {
-				background-color: #6b717d;
-				border-radius: 6px;
-				border: 3px solid #373b41;
-			}
-		</style>
 		<?php
 	}
 
@@ -170,10 +175,10 @@ class AST_Sitemap_Generator {
 	private function add_url( $sitemap, $loc, $priority, $changefreq, $lastmod = '' ) {
 		$url = $sitemap->addChild( 'url' );
 		$url->addChild( 'loc', esc_url( $loc ) );
-		$url->addChild( 'priority', $priority );
-		$url->addChild( 'changefreq', $changefreq );
+		$url->addChild( 'priority', esc_attr( $priority ) );
+		$url->addChild( 'changefreq', esc_attr( $changefreq ) );
 		if ( $lastmod ) {
-			$url->addChild( 'lastmod', $lastmod );
+			$url->addChild( 'lastmod', esc_attr( $lastmod ) );
 		}
 	}
 
@@ -193,7 +198,7 @@ class AST_Sitemap_Generator {
 		);
 
 		foreach ( $ping_urls as $url ) {
-			wp_remote_get( $url );
+			wp_safe_remote_get( esc_url_raw( $url ) );
 		}
 	}
 
@@ -213,6 +218,7 @@ class AST_Sitemap_Generator {
 		// Regenerate the sitemap
 		$this->generate_sitemap();
 	}
+
 	private function format_xml( $xml ) {
 		$dom = new DOMDocument( '1.0' );
 		$dom->preserveWhiteSpace = false;
@@ -220,7 +226,7 @@ class AST_Sitemap_Generator {
 		$dom->loadXML( $xml );
 		$formatted = $dom->saveXML();
 
-		// Add syntax highlighting
+		// Add syntax highlighting (you may want to use a proper XML syntax highlighter library for better results)
 		$formatted = preg_replace(
 			array(
 				'/&lt;urlset.*?&gt;/',
@@ -232,13 +238,13 @@ class AST_Sitemap_Generator {
 				'/&gt;(.+?)&lt;/',
 			),
 			array(
-				'<span style="color: #e06c75;">&lt;urlset$1&gt;</span>',
-				'<span style="color: #e06c75;">&lt;/urlset&gt;</span>',
-				'<span style="color: #d19a66;">&lt;url&gt;</span>',
-				'<span style="color: #d19a66;">&lt;/url&gt;</span>',
-				'<span style="color: #61afef;">&lt;$1&gt;</span>',
-				'<span style="color: #61afef;">&lt;/$1&gt;</span>',
-				'&gt;<span style="color: #98c379;">$1</span>&lt;',
+				'<span class="xml-tag">&lt;urlset$1&gt;</span>',
+				'<span class="xml-tag">&lt;/urlset&gt;</span>',
+				'<span class="xml-tag">&lt;url&gt;</span>',
+				'<span class="xml-tag">&lt;/url&gt;</span>',
+				'<span class="xml-tag">&lt;$1&gt;</span>',
+				'<span class="xml-tag">&lt;/$1&gt;</span>',
+				'&gt;<span class="xml-content">$1</span>&lt;',
 			),
 			htmlspecialchars( $formatted )
 		);

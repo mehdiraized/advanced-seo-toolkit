@@ -4,7 +4,7 @@
 **Tags:** seo, meta tags, schema markup, xml sitemap, robots.txt  
 **Requires at least:** 5.0  
 **Tested up to:** 6.6.1  
-**Stable tag:** 1.1.0  
+**Stable tag:** 1.1.1  
 **Requires PHP:** 7.2  
 **License:** GPLv2 or later  
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
@@ -48,6 +48,29 @@ After activation, you'll find a new "Advanced SEO" menu item in your WordPress a
 
 For detailed usage instructions, please refer to the [plugin documentation](https://example.com/advanced-seo-toolkit-docs).
 
+## Third-Party Services
+
+This plugin integrates with the following third-party services:
+
+### Ahrefs
+
+Advanced SEO Toolkit uses the Ahrefs API to fetch SEO metrics for your website. When you enable this integration and provide an API key, the plugin will send requests to Ahrefs servers containing the URL you wish to analyze.
+
+- Service Website: https://ahrefs.com/
+- API Documentation: https://ahrefs.com/api/documentation
+- Terms of Service: https://ahrefs.com/terms
+- Privacy Policy: https://ahrefs.com/privacy-policy
+
+### Google Analytics
+
+The plugin allows you to integrate your Google Analytics ID for tracking purposes. When enabled, this integration will send data about your website's visitors to Google Analytics servers.
+
+- Service Website: https://analytics.google.com/
+- Terms of Service: https://policies.google.com/terms
+- Privacy Policy: https://policies.google.com/privacy
+
+By using these integrations, you acknowledge that you have read and agree to the terms of service and privacy policies of these third-party services. It is your responsibility to ensure that your use of these services complies with any applicable laws and regulations.
+
 ## Frequently Asked Questions
 
 **Q: Is this plugin compatible with my theme?**
@@ -55,6 +78,9 @@ A: Advanced SEO Toolkit is designed to be compatible with most WordPress themes.
 
 **Q: Can I use this plugin alongside other SEO plugins?**
 A: While it's generally not recommended to use multiple SEO plugins simultaneously, Advanced SEO Toolkit is designed to work independently. However, for best results, we recommend using it as your primary SEO solution.
+
+**Q: How do I set up integrations with Ahrefs and Google Analytics?**
+A: You can set up these integrations in the plugin's "Integrations" settings page. You'll need to provide API keys or IDs for the respective services. Please note that use of these services is optional and subject to their terms of service and privacy policies.
 
 ## Support
 

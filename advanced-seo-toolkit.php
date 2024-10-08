@@ -3,7 +3,7 @@
  * Plugin Name: Advanced SEO Toolkit
  * Plugin URI: https://github.com/mehdiraized/advanced-seo-toolkit
  * Description: A comprehensive SEO plugin with meta tags, custom language support, schema markup, and third-party integrations.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Mehdi Rezaei
  * Author URI: https://mehd.ir
  * License: GPLv2 or later
@@ -34,7 +34,7 @@ class Advanced_SEO_Toolkit {
 	}
 
 	private function define_constants() {
-		define( 'AST_VERSION', '1.1.0' );
+		define( 'AST_VERSION', '1.1.1' );
 		define( 'AST_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 		define( 'AST_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 	}

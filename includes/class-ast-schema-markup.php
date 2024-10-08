@@ -27,9 +27,7 @@ class AST_Schema_Markup {
 			$schema = $this->generate_website_schema();
 		}
 
-		if ( $schema ) {
-			echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>';
-		}
+		return $schema;
 	}
 
 	public function generate_product_schema( $product_id ) {
@@ -44,15 +42,15 @@ class AST_Schema_Markup {
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@type' => 'Product',
-			'name' => $product->get_name(),
-			'description' => $product->get_short_description(),
+			'name' => wp_strip_all_tags( $product->get_name() ),
+			'description' => wp_strip_all_tags( $product->get_short_description() ),
 			'sku' => $product->get_sku(),
 			'offers' => array(
 				'@type' => 'Offer',
 				'price' => $product->get_price(),
 				'priceCurrency' => get_woocommerce_currency(),
 				'availability' => $product->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-				'url' => get_permalink( $product_id )
+				'url' => esc_url( get_permalink( $product_id ) )
 			)
 		);
 
@@ -65,7 +63,7 @@ class AST_Schema_Markup {
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@type' => 'Article',
-			'headline' => get_the_title(),
+			'headline' => wp_strip_all_tags( get_the_title() ),
 			'datePublished' => get_the_date( 'c' ),
 			'dateModified' => get_the_modified_date( 'c' ),
 			'author' => array(
@@ -77,23 +75,21 @@ class AST_Schema_Markup {
 				'name' => get_bloginfo( 'name' ),
 				'logo' => array(
 					'@type' => 'ImageObject',
-					'url' => get_site_icon_url()
+					'url' => esc_url( get_site_icon_url() )
 				)
 			)
 		);
 
-		// Add featured image if available
 		if ( has_post_thumbnail() ) {
 			$schema['image'] = array(
 				'@type' => 'ImageObject',
-				'url' => get_the_post_thumbnail_url( $post, 'full' )
+				'url' => esc_url( get_the_post_thumbnail_url( $post, 'full' ) )
 			);
 		}
 
-		// Add description if available
 		$description = get_post_meta( $post->ID, '_ast_meta_description', true );
 		if ( $description ) {
-			$schema['description'] = $description;
+			$schema['description'] = wp_strip_all_tags( $description );
 		}
 
 		return $schema;
@@ -104,9 +100,9 @@ class AST_Schema_Markup {
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@type' => 'Person',
-			'name' => get_the_author_meta( 'display_name', $author_id ),
-			'description' => get_the_author_meta( 'description', $author_id ),
-			'url' => get_author_posts_url( $author_id )
+			'name' => wp_strip_all_tags( get_the_author_meta( 'display_name', $author_id ) ),
+			'description' => wp_strip_all_tags( get_the_author_meta( 'description', $author_id ) ),
+			'url' => esc_url( get_author_posts_url( $author_id ) )
 		);
 
 		return $schema;
@@ -116,9 +112,9 @@ class AST_Schema_Markup {
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@type' => 'CollectionPage',
-			'headline' => get_the_archive_title(),
-			'description' => get_the_archive_description(),
-			'url' => get_permalink()
+			'headline' => wp_strip_all_tags( get_the_archive_title() ),
+			'description' => wp_strip_all_tags( get_the_archive_description() ),
+			'url' => esc_url( get_permalink() )
 		);
 
 		return $schema;
@@ -128,9 +124,9 @@ class AST_Schema_Markup {
 		$schema = array(
 			'@context' => 'https://schema.org',
 			'@type' => 'WebSite',
-			'name' => get_bloginfo( 'name' ),
-			'description' => get_bloginfo( 'description' ),
-			'url' => get_site_url()
+			'name' => wp_strip_all_tags( get_bloginfo( 'name' ) ),
+			'description' => wp_strip_all_tags( get_bloginfo( 'description' ) ),
+			'url' => esc_url( get_site_url() )
 		);
 
 		return $schema;

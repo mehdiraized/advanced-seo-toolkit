@@ -1,0 +1,13 @@
+.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar {
+	width: 12px;
+}
+
+.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar-track {
+	background: #373b41;
+}
+
+.ast-sitemap-preview .sitemap-preview ::-webkit-scrollbar-thumb {
+	background-color: #6b717d;
+	border-radius: 6px;
+	border: 3px solid #373b41;
+}
