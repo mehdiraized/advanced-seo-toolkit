@@ -97,6 +97,14 @@ If you find this plugin useful, please consider supporting its development by [b
 
 Advanced SEO Toolkit is released under the GPL v2 or later license. See the LICENSE file for details.
 
+== Screenshots ==
+
+1. Custom Meta Tag Editor & SEO Analysis Tool
+2. Settings Page
+3. Integration Settings
+4. Robots.txt Editor
+5. XML Sitemap Generator
+
 == Changelog ==
 
 = 1.1.2 =
